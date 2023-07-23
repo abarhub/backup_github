@@ -4,6 +4,8 @@ import os
 import subprocess
 from pathlib import Path
 from sys import path
+from os import listdir
+from os.path import isfile, join, isdir
 
 from pip._vendor import requests
 
@@ -100,6 +102,31 @@ def enregistre_info_user(user, rep_destination):
 
     enregistre_starred(user, rep_destination2, dateCourante)
 
+def affiche_difference_repo(liste,rep_racine):
+
+    liste_projet_github=[]
+
+    for url in liste:
+        debut = url.rindex("/")
+        fin = url.rindex(".git")
+        liste_projet_github.append(url[debut + 1:fin])
+
+    liste_projet_github.sort()
+
+    print(f"liste projets github : {liste_projet_github}")
+
+    onlydir = [f for f in listdir(rep_racine) if isdir(join(rep_racine, f))]
+
+    onlydir.sort()
+
+    print(f"liste projets local : {onlydir}")
+
+    trop_github=list(set(liste_projet_github) - set(onlydir))
+    print(f"liste en trop sur github : {trop_github}")
+
+
+    trop_local=list(set(onlydir) - set(liste_projet_github))
+    print(f"liste en trop en local : {trop_local}")
 
 
 
@@ -129,6 +156,9 @@ def backup_github(rep_destination, user):
     # res=os.system(f"git clone {url} {rep}")
 
     # print(f"res={res}")
+
+    # affiche les projets qui sont en trop soit sur github, soit en local
+    affiche_difference_repo(liste,rep_racine)
 
     for url_repo in liste:
         print("update", url_repo, "...")
